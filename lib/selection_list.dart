@@ -2,6 +2,7 @@ import 'package:country_list_pick/country_selection_theme.dart';
 import 'package:country_list_pick/support/code_country.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import 'country_list_pick.dart';
@@ -11,6 +12,7 @@ class SelectionList extends StatefulWidget {
       {Key? key,
       this.appBar,
       this.theme,
+      // this.colorTheme,
       this.countryBuilder,
       this.useUiOverlay = true,
       this.useSafeArea = false})
@@ -20,6 +22,7 @@ class SelectionList extends StatefulWidget {
   final List elements;
   final CountryCode? initialSelection;
   final CountryTheme? theme;
+  // final ColorThemeModel? colorTheme;
   final Widget Function(BuildContext context, CountryCode)? countryBuilder;
   final bool useUiOverlay;
   final bool useSafeArea;
@@ -31,9 +34,9 @@ class SelectionList extends StatefulWidget {
 class _SelectionListState extends State<SelectionList> {
   late List countries;
   final TextEditingController _controller = TextEditingController();
+  ColorThemeModel colorTheme = CountryPickerColorTheme.lightMode();
   ScrollController? _controllerScroll;
   var diff = 0.0;
-
   var posSelected = 0;
   var height = 0.0;
   late var _sizeheightcontainer;
@@ -48,11 +51,21 @@ class _SelectionListState extends State<SelectionList> {
   @override
   void initState() {
     countries = widget.elements;
+    var brightness = SchedulerBinding.instance!.window.platformBrightness;
     countries.sort((a, b) {
       return a.name.toString().compareTo(b.name.toString());
     });
     _controllerScroll = ScrollController();
     _controllerScroll!.addListener(_scrollListener);
+    if (brightness == Brightness.dark) {
+      setState(() {
+        colorTheme = CountryPickerColorTheme.darkMode();
+      });
+    } else if (brightness == Brightness.light) {
+      setState(() {
+        colorTheme = CountryPickerColorTheme.lightMode();
+      });
+    }
     super.initState();
   }
 
@@ -76,8 +89,10 @@ class _SelectionListState extends State<SelectionList> {
     height = MediaQuery.of(context).size.height;
     Widget scaffold = Scaffold(
       appBar: widget.appBar,
+      backgroundColor: colorTheme.backgroundColor,
       body: Container(
         // color: Color(0xfff4f4f4),
+        // color: Theme.of(context).,
         child: LayoutBuilder(builder: (context, contrainsts) {
           diff = height - contrainsts.biggest.height;
           _heightscroller = (contrainsts.biggest.height) / _alphabet.length;
@@ -90,22 +105,27 @@ class _SelectionListState extends State<SelectionList> {
                 slivers: [
                   SliverToBoxAdapter(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Text(
-                            widget.theme?.searchText ?? 'SEARCH',
-                            style: TextStyle(
-                                color:
-                                    widget.theme?.labelColor ?? Colors.black),
+                        Container(
+                          color: colorTheme.backgroundColor,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: Text(
+                              widget.theme?.searchText ?? 'SEARCH',
+                              style: TextStyle(
+                                  color: colorTheme.labelColor ?? Colors.black),
+                            ),
                           ),
                         ),
                         Container(
-                          // color: Colors.white,
-                          color: Theme.of(context).dialogBackgroundColor,
+                          color: colorTheme.btnColor,
+                          // color: Theme.of(context).dialogBackgroundColor,
                           child: TextField(
                             controller: _controller,
+                            style: TextStyle(
+                              color: colorTheme.labelColor,
+                            ),
                             decoration: InputDecoration(
                               border: InputBorder.none,
                               focusedBorder: InputBorder.none,
@@ -114,24 +134,30 @@ class _SelectionListState extends State<SelectionList> {
                               disabledBorder: InputBorder.none,
                               contentPadding: EdgeInsets.only(
                                   left: 15, bottom: 0, top: 0, right: 15),
+                              labelStyle: TextStyle(
+                                color: colorTheme.labelColor,
+                              ),
                               hintText:
                                   widget.theme?.searchHintText ?? "Search...",
+                              hintStyle: TextStyle(
+                                color: colorTheme.labelColor,
+                              ),
                             ),
                             onChanged: _filterElements,
                           ),
                         ),
-                        Padding(
+                        Container(
+                          color: colorTheme.backgroundColor,
                           padding: const EdgeInsets.all(15.0),
                           child: Text(
                             widget.theme?.lastPickText ?? 'LAST PICK',
                             style: TextStyle(
-                                color:
-                                    widget.theme?.labelColor ?? Colors.black),
+                                color: colorTheme.labelColor ?? Colors.black),
                           ),
                         ),
                         Container(
                           // color: Colors.white,
-                          color: Theme.of(context).dialogBackgroundColor,
+                          color: colorTheme.btnColor,
                           child: Material(
                             color: Colors.transparent,
                             child: ListTile(
@@ -140,15 +166,24 @@ class _SelectionListState extends State<SelectionList> {
                                 package: 'country_list_pick',
                                 width: 32.0,
                               ),
-                              title: Text(widget.initialSelection!.name!),
+                              title: Text(
+                                widget.initialSelection!.name!,
+                                style: TextStyle(
+                                  color: colorTheme.labelColor,
+                                ),
+                              ),
                               trailing: Padding(
                                 padding: const EdgeInsets.only(right: 20.0),
-                                child: Icon(Icons.check, color: Colors.green),
+                                child: Icon(Icons.check,
+                                    color: Theme.of(context).primaryColor),
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 15),
+                        Container(
+                          height: 15,
+                          color: colorTheme.backgroundColor,
+                        ),
                       ],
                     ),
                   ),
@@ -193,7 +228,7 @@ class _SelectionListState extends State<SelectionList> {
     return Container(
       height: 50,
       // color: Colors.white,
-      color: Theme.of(context).dialogBackgroundColor,
+      color: colorTheme.btnColor,
       child: Material(
         color: Colors.transparent,
         child: ListTile(
@@ -202,7 +237,12 @@ class _SelectionListState extends State<SelectionList> {
             package: 'country_list_pick',
             width: 30.0,
           ),
-          title: Text(e.name!),
+          title: Text(
+            e.name!,
+            style: TextStyle(
+              color: colorTheme.labelColor,
+            ),
+          ),
           onTap: () {
             _sendDataBack(context, e);
           },
@@ -237,7 +277,7 @@ class _SelectionListState extends State<SelectionList> {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: index == posSelected
-                ? widget.theme?.alphabetSelectedBackgroundColor ?? Colors.blue
+                ? Theme.of(context).primaryColor
                 : Colors.transparent,
             shape: BoxShape.circle,
           ),
@@ -248,12 +288,11 @@ class _SelectionListState extends State<SelectionList> {
                 ? TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color:
-                        widget.theme?.alphabetSelectedTextColor ?? Colors.white)
+                    color: Colors.white)
                 : TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
-                    color: widget.theme?.alphabetTextColor ?? Colors.black),
+                    color: colorTheme.labelColor ?? Colors.black),
           ),
         ),
       ),

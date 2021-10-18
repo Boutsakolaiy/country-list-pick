@@ -5,6 +5,7 @@ import 'package:country_list_pick/support/code_countries_en.dart';
 import 'package:country_list_pick/support/code_country.dart';
 import 'package:country_list_pick/support/code_countrys.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'support/code_country.dart';
 
@@ -47,6 +48,7 @@ class CountryListPick extends StatefulWidget {
               flagUri: 'flags/${s['code'].toLowerCase()}.png',
             ))
         .toList();
+
     return _CountryListPickState(elements);
   }
 }
@@ -54,6 +56,7 @@ class CountryListPick extends StatefulWidget {
 class _CountryListPickState extends State<CountryListPick> {
   CountryCode? selectedItem;
   List elements = [];
+  // ColorThemeModel colorTheme;
 
   _CountryListPickState(this.elements);
 
@@ -69,7 +72,6 @@ class _CountryListPickState extends State<CountryListPick> {
     } else {
       selectedItem = elements[0];
     }
-
     super.initState();
   }
 
@@ -77,21 +79,26 @@ class _CountryListPickState extends State<CountryListPick> {
       CountryTheme? theme) async {
     final result = await Navigator.of(context).push(
       CustomPageRoute(
-        child: SelectionList(
-          elements,
-          selectedItem,
-          appBar: widget.appBar ??
-              AppBar(
-                backgroundColor: Theme.of(context).appBarTheme.color,
-                title: Text("Select Country"),
-              ),
-          theme: theme,
-          countryBuilder: widget.countryBuilder,
-          useUiOverlay: widget.useUiOverlay,
-          useSafeArea: widget.useSafeArea,
-        ),
-        direction: AxisDirection.left
-      ),
+          child: SelectionList(
+            elements,
+            selectedItem,
+            appBar: widget.appBar ??
+                AppBar(
+                  title: Text(
+                    "Select Country",
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  centerTitle: true,
+                ),
+            theme: theme,
+            // colorTheme: colorTheme,
+            countryBuilder: widget.countryBuilder,
+            useUiOverlay: widget.useUiOverlay,
+            useSafeArea: widget.useSafeArea,
+          ),
+          direction: AxisDirection.left),
     );
 
     setState(() {
