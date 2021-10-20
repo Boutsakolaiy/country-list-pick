@@ -90,135 +90,137 @@ class _SelectionListState extends State<SelectionList> {
     Widget scaffold = Scaffold(
       appBar: widget.appBar,
       backgroundColor: colorTheme.backgroundColor,
-      body: Container(
-        // color: Color(0xfff4f4f4),
-        // color: Theme.of(context).,
-        child: LayoutBuilder(builder: (context, contrainsts) {
-          diff = height - contrainsts.biggest.height;
-          _heightscroller = (contrainsts.biggest.height) / _alphabet.length;
-          _sizeheightcontainer = (contrainsts.biggest.height);
-          return Stack(
-            children: <Widget>[
-              CustomScrollView(
-                controller: _controllerScroll,
-                physics: const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          color: colorTheme.backgroundColor,
-                          child: Padding(
+      body: SafeArea(
+        child: Container(
+          // color: Color(0xfff4f4f4),
+          // color: colorTheme.backgroundColor,
+          child: LayoutBuilder(builder: (context, contrainsts) {
+            diff = height - contrainsts.biggest.height;
+            _heightscroller = (contrainsts.biggest.height) / _alphabet.length;
+            _sizeheightcontainer = (contrainsts.biggest.height);
+            return Stack(
+              children: <Widget>[
+                CustomScrollView(
+                  controller: _controllerScroll,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            color: colorTheme.backgroundColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Text(
+                                widget.theme?.searchText ?? 'SEARCH',
+                                style: TextStyle(
+                                    color: colorTheme.labelColor ?? Colors.black),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            color: colorTheme.btnColor,
+                            // color: Theme.of(context).dialogBackgroundColor,
+                            child: TextField(
+                              controller: _controller,
+                              style: TextStyle(
+                                color: colorTheme.labelColor,
+                              ),
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                errorBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                contentPadding: EdgeInsets.only(
+                                    left: 15, bottom: 0, top: 0, right: 15),
+                                labelStyle: TextStyle(
+                                  color: colorTheme.labelColor,
+                                ),
+                                hintText:
+                                    widget.theme?.searchHintText ?? "Search...",
+                                hintStyle: TextStyle(
+                                  color: colorTheme.labelColor,
+                                ),
+                              ),
+                              onChanged: _filterElements,
+                            ),
+                          ),
+                          Container(
+                            color: colorTheme.backgroundColor,
                             padding: const EdgeInsets.all(15.0),
                             child: Text(
-                              widget.theme?.searchText ?? 'SEARCH',
+                              widget.theme?.lastPickText ?? 'LAST PICK',
                               style: TextStyle(
                                   color: colorTheme.labelColor ?? Colors.black),
                             ),
                           ),
-                        ),
-                        Container(
-                          color: colorTheme.btnColor,
-                          // color: Theme.of(context).dialogBackgroundColor,
-                          child: TextField(
-                            controller: _controller,
-                            style: TextStyle(
-                              color: colorTheme.labelColor,
-                            ),
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
-                              contentPadding: EdgeInsets.only(
-                                  left: 15, bottom: 0, top: 0, right: 15),
-                              labelStyle: TextStyle(
-                                color: colorTheme.labelColor,
-                              ),
-                              hintText:
-                                  widget.theme?.searchHintText ?? "Search...",
-                              hintStyle: TextStyle(
-                                color: colorTheme.labelColor,
-                              ),
-                            ),
-                            onChanged: _filterElements,
-                          ),
-                        ),
-                        Container(
-                          color: colorTheme.backgroundColor,
-                          padding: const EdgeInsets.all(15.0),
-                          child: Text(
-                            widget.theme?.lastPickText ?? 'LAST PICK',
-                            style: TextStyle(
-                                color: colorTheme.labelColor ?? Colors.black),
-                          ),
-                        ),
-                        Container(
-                          // color: Colors.white,
-                          color: colorTheme.btnColor,
-                          child: Material(
-                            color: Colors.transparent,
-                            child: ListTile(
-                              leading: Image.asset(
-                                widget.initialSelection!.flagUri!,
-                                package: 'country_list_pick',
-                                width: 32.0,
-                              ),
-                              title: Text(
-                                widget.initialSelection!.name!,
-                                style: TextStyle(
-                                  color: colorTheme.labelColor,
+                          Container(
+                            // color: Colors.white,
+                            color: colorTheme.btnColor,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: ListTile(
+                                leading: Image.asset(
+                                  widget.initialSelection!.flagUri!,
+                                  package: 'country_list_pick',
+                                  width: 32.0,
+                                ),
+                                title: Text(
+                                  widget.initialSelection!.name!,
+                                  style: TextStyle(
+                                    color: colorTheme.labelColor,
+                                  ),
+                                ),
+                                trailing: Padding(
+                                  padding: const EdgeInsets.only(right: 20.0),
+                                  child: Icon(Icons.check,
+                                      color: Theme.of(context).primaryColor),
                                 ),
                               ),
-                              trailing: Padding(
-                                padding: const EdgeInsets.only(right: 20.0),
-                                child: Icon(Icons.check,
-                                    color: Theme.of(context).primaryColor),
-                              ),
                             ),
                           ),
-                        ),
-                        Container(
-                          height: 15,
-                          color: colorTheme.backgroundColor,
-                        ),
-                      ],
-                    ),
-                  ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      return widget.countryBuilder != null
-                          ? widget.countryBuilder!(
-                              context, countries.elementAt(index))
-                          : getListCountry(countries.elementAt(index));
-                    }, childCount: countries.length),
-                  )
-                ],
-              ),
-              if (isShow == true)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onVerticalDragUpdate: _onVerticalDragUpdate,
-                    onVerticalDragStart: _onVerticalDragStart,
-                    child: Container(
-                      height: 20.0 * 30,
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: []..addAll(
-                            List.generate(_alphabet.length,
-                                (index) => _getAlphabetItem(index)),
+                          Container(
+                            height: 15,
+                            color: colorTheme.backgroundColor,
                           ),
+                        ],
+                      ),
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        return widget.countryBuilder != null
+                            ? widget.countryBuilder!(
+                                context, countries.elementAt(index))
+                            : getListCountry(countries.elementAt(index));
+                      }, childCount: countries.length),
+                    )
+                  ],
+                ),
+                if (isShow == true)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onVerticalDragUpdate: _onVerticalDragUpdate,
+                      onVerticalDragStart: _onVerticalDragStart,
+                      child: Container(
+                        height: 20.0 * 30,
+                        color: Colors.transparent,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: []..addAll(
+                              List.generate(_alphabet.length,
+                                  (index) => _getAlphabetItem(index)),
+                            ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          );
-        }),
+              ],
+            );
+          }),
+        ),
       ),
     );
     return widget.useSafeArea ? SafeArea(child: scaffold) : scaffold;

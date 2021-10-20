@@ -24,6 +24,13 @@ class CustomPageRoute extends PageRouteBuilder {
 
     var tween = Tween(begin: getBeginOffset(), end: Offset.zero)
         .chain(CurveTween(curve: curve));
+    // return SlideTransition(
+    //   position:  Tween<Offset>(
+    //       begin: getBeginOffset(),
+    //       end: Offset.zero,
+    //     ).animate(animation),
+    //   child: child,
+    // );
     return SlideTransition(
       position: animation.drive(tween),
       child: child,
